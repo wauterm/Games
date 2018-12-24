@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using static Oxo.GameRules;
 
 namespace Oxo
 {
@@ -14,7 +13,8 @@ namespace Oxo
         {
             if(Player1NameInput.Text != "" && Player2NameInput.Text != "")
             {
-                StartGame(Player1NameInput.Text, Player2NameInput.Text);
+                GameRules.Players.Add(new Player(Player1NameInput.Text));
+                GameRules.Players.Add(new Player(Player2NameInput.Text));
                 // Todo - Memory leak?
                 Hide();
                 Form mainform = new MainForm();
