@@ -1,4 +1,5 @@
 ﻿using Oxo.GameLogic;
+using System.Linq;
 using System.Windows.Forms;
 using static Oxo.GameRules;
 
@@ -17,23 +18,24 @@ namespace Oxo
             // Determine the starting player and display it.
             DetermineStartingPlayer(player1,player2);
             ShowTurnArrow();
+            ConnectPlayerVariables();
 
-            // Global functions
-            void ConnectPlayerVariables()
-            {
-                Player1Label.Text = player1.PlayerName;
-                labelScoreP1.Text = player1.Score.ToString();
-
-                Player2Label.Text = player2.PlayerName;
-                labelScoreP2.Text = player2.Score.ToString();
-            }
         }
         private void btnRestartGame_Click(object sender, System.EventArgs e)
         {
+            ResetGameGrid();
             NewGame();
             Form welcomeForm = new WelcomeScreen();
             welcomeForm.Show();
             Close();
+        }
+        public void ConnectPlayerVariables()
+        {
+            Player1Label.Text = Players[0].PlayerName;
+            labelScoreP1.Text = Players[0].Score.ToString();
+
+            Player2Label.Text = Players[1].PlayerName;
+            labelScoreP2.Text = Players[1].Score.ToString();
         }
         public void ShowTurnArrow()
         {
@@ -47,6 +49,24 @@ namespace Oxo
                 labelTurnArrowP2.Visible = true;
                 LabelTurnArrowP1.Visible = false;
             }
+        }
+        public void ResetGameGrid()
+        {
+            foreach (Control c in GameGrid.Controls)
+            {
+                if (c is TextBox)
+                {
+                    ((TextBox)c).Text = "-";
+                }
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = i, k = 0; k < 4; k++)
+                {
+                    Grid[j, k] = null;
+                }
+            }
+            GameGrid.Enabled = false;
         }
         public bool IsXorO(KeyEventArgs keyDown)
         {
@@ -63,13 +83,13 @@ namespace Oxo
             {
                 ((TextBox)sender).Text = e.KeyCode.ToString().ToLower();
                 OxoSquare square = new OxoSquare((TextBox)sender);
-
                 Grid[square.X, square.Y] = square.Value;
                 e.SuppressKeyPress = true;
+
                 if (CheckForWinningSequence())
                 {
-                    ((TextBox)sender).Text = "";
-                    MessageBox.Show("Je hebt gewonnen.");
+                    ConnectPlayerVariables();
+                    ResetGameGrid();
                 }
                 else
                 {
@@ -87,6 +107,12 @@ namespace Oxo
         {
             if((((TextBox)sender).Text.ToLower() != "x") && (((TextBox)sender).Text.ToLower() != "o"))
                 ((TextBox)sender).Text = "";
+        }
+
+        private void btnNextGame_Click(object sender, System.EventArgs e)
+        {
+            DetermineStartingPlayer(Players[0], Players[1]);
+            GameGrid.Enabled = true;
         }
     }
 }

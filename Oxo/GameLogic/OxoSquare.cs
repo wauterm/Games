@@ -12,16 +12,16 @@ namespace Oxo.GameLogic
         // Constructors
         public OxoSquare(int x, int y, string val)
         {
-            X = (x-1);
-            Y = (y-1);
+            X = (x);
+            Y = (y);
             Value = val;
         }
         public OxoSquare(TextBox tb)
         {
             Value = tb.Text;
             string tempString = tb.Name;
-            X = int.Parse(tempString.Substring(8, 1)) - 1;
-            Y = int.Parse(tempString.Substring(10, 1)) - 1;
+            X = int.Parse(tempString.Substring(8, 1));
+            Y = int.Parse(tempString.Substring(10, 1));
         }
         // Functions
     }

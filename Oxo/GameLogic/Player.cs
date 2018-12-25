@@ -10,14 +10,10 @@
         // Constructors
         public Player()
         {
-
         }
         public Player(string name)
         {
             PlayerName = name;
         }
-
-        // Functions
-
     }
 }

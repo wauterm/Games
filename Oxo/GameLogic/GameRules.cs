@@ -1,25 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using Oxo.GameLogic;
+using System.Windows.Forms;
 
 namespace Oxo
 {
     public static class GameRules
     {
-        // Het spel bestaat uit:
-        // Twee spelers met een naam en een score
-        // 16 zetten waarbij de winnaar wordt bepaald door de sequentie "oxo"
-        // De sequenties kan ik eventueel bijhouden in een lijsten ( verticaal/ kolom, horizontaal/ rij, schuinLR/ rij, schuinRL/ rij)
-        // Rondes: de winnaar van een ronde krijgt een punt
-
         // Global Properties
         public static List<Player> Players { get; set; } = new List<Player>();
         public static int NumberOfGames { get; set; } = 0;
-        public static List<OxoSquare> GridList { get; set; } = new List<OxoSquare>();
         public static string[,] Grid = new string[4,4];
-
-
+        public static Player LastWinner { get; set; } = new Player();
 
         // Functions
         public static void StartGame()
@@ -63,42 +54,44 @@ namespace Oxo
                 Players[0].IsOnTurn = true;
                 return Players[0];
         }
+
         public static bool CheckForWinningSequence()
         {
-            string[] winningSequences = { "oxoo", "ooxo", "xoxo", "oxox", "oxo"};
-            // Check all 4 rows
+            string[] winningSequences = { "oxoo", "ooxo", "xoxo", "oxox", "oxo", "*oxo", "oxo*"};
+
             for (int i = 0; i < Grid.Length / 4; i++)
             {
-                if(CompareRowSequence(i, winningSequences))
+                if(CompareRowSequence(i, winningSequences) || CompareColumnSequence(i,winningSequences) || CompareDiagonals(winningSequences))
                 {
+                    if(Players[0].IsOnTurn)
+                    {
+                        Players[0].Score += 1;
+                        LastWinner = Players[0];
+                    }
+                    else
+                    {
+                        Players[1].Score += 1;
+                        LastWinner = Players[1];
+                    }
                     return true;
                 }
-            }
-
-            // Check all 4 columns
-            for (int i = 0; i < Grid.Length / 4; i++)
-            {
-                if(CompareColumnSequence(i,winningSequences))
-                {
-                    return true;
-                }
-            }
-
-            // Check all diagonals
-            if(CompareDiagonals(winningSequences))
-            {
-                return true;
             }
             return false;
         }
-
-        private static bool CompareRowSequence(int rowRank, string[] winningSequence)
+        private static bool CompareRowSequence(int y, string[] winningSequence)
         {
             string comparisonSequence = string.Empty;
 
-            for (int i = 0; i < Grid.Length / 4; i++)
+            for (int x = 0; x < Grid.Length / 4; x++)
             {
-                comparisonSequence += Grid[rowRank, i];
+                if(Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y];
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
 
             foreach (string sequence in winningSequence)
@@ -110,13 +103,20 @@ namespace Oxo
             }
             return false;
         }
-        private static bool CompareColumnSequence(int columnRank, string[] winningSequence)
+        private static bool CompareColumnSequence(int x, string[] winningSequence)
         {
             string comparisonSequence = string.Empty;
 
-            for (int i = 0; i < Grid.Length / 4; i++)
+            for (int y = 0; y < Grid.Length / 4; y++)
             {
-                comparisonSequence += Grid[i, columnRank];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y]; 
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
 
             foreach (string sequence in winningSequence)
@@ -135,7 +135,14 @@ namespace Oxo
             // Links naar rechts
             for (int x = 0, y = 1; x < 3; x++,y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y];
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -147,9 +154,16 @@ namespace Oxo
 
             comparisonSequence = "";
 
-            for (int x = 1, y = 0; x < 4; x++,y++)
+            for (int x = 1, y = 0; x < 3; x++,y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y]; 
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -163,7 +177,14 @@ namespace Oxo
 
             for (int x = 0, y = 0; x < 4; x++, y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y]; 
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -178,7 +199,14 @@ namespace Oxo
             // Rechts naar links
             for (int x = 2, y = 0; x >= 0; x--, y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y];
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -192,7 +220,14 @@ namespace Oxo
 
             for (int x = 3, y = 1; x > 0; x--, y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y]; 
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -206,7 +241,14 @@ namespace Oxo
 
             for (int x = 3, y = 0; x >= 0; x--, y++)
             {
-                comparisonSequence += Grid[x, y];
+                if (Grid[x,y] != null)
+                {
+                    comparisonSequence += Grid[x, y]; 
+                }
+                else
+                {
+                    comparisonSequence += "*";
+                }
             }
             foreach (string sequence in winningSequences)
             {
@@ -215,12 +257,9 @@ namespace Oxo
                     return true;
                 }
             }
-
             comparisonSequence = "";
-
             return false;
         }
-
         public static void NewGame()
         {
             Players.Clear();
